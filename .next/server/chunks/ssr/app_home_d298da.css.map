@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 1, "column": 0}, "map": {"version":3,"sources":["file:///Users/jeremy/Desktop/ImpGrowth_Dashboard/app/home.css"],"sourcesContent":[".gradient {\n  position: relative;\n  background-image: repeating-linear-gradient(\n    to right,\n    #63DFFA,\n    #6C47FF,\n    #63DFFA\n  );\n  z-index: 1;\n  background-position-x: 0%;\n  background-size: 200%;\n  animation: gradimate 3s linear infinite;\n  -webkit-background-clip: text;\n          background-clip: text;\n}\n\n@keyframes gradimate {\n  0% {\n    background-position-x: 0%;\n  }\n  50% {\n    background-position-x: 100%;\n  }\n  100% {\n    background-position-x: 200%;\n  }\n}\n"],"names":[],"mappings":"AAAA;;;;;;;;;;;AAgBA"}},
+    {"offset": {"line": 25, "column": 0}, "map": {"version":3,"sources":[],"names":[],"mappings":"A"}}]
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 7, "column": 0}, "map": {"version":3,"sources":["file:///Users/jeremy/Desktop/ImpGrowth_Dashboard/app/page.tsx"],"sourcesContent":["import { auth } from '@clerk/nextjs/server'\nimport { redirect } from 'next/navigation'\n\nexport default async function Home() {\n  const { userId } = await auth()\n  \n  if (userId) {\n    redirect('/dashboard')\n  }\n\n  return (\n    <main className=\"flex min-h-screen flex-col items-center justify-between p-24\">\n      <h1 className=\"text-4xl font-bold\">Welcome to ImpGrowth Manager</h1>\n    </main>\n  )\n}"],"names":[],"mappings":";;;;AACA;AADA;AACA;;;;AAEe,eAAe;IAC5B,MAAM,EAAE,MAAM,EAAE,GAAG,MAAM,CAAA,GAAA,mLAAA,CAAA,OAAI,AAAD;IAE5B,IAAI,QAAQ;QACV,CAAA,GAAA,qLAAA,CAAA,WAAQ,AAAD,EAAE;IACX;IAEA,qBACE,8OAAC;QAAK,WAAU;kBACd,cAAA,8OAAC;YAAG,WAAU;sBAAqB;;;;;;;;;;;AAGzC"}},
+    {"offset": {"line": 38, "column": 0}, "map": {"version":3,"sources":[],"names":[],"mappings":"A"}}]
+}
