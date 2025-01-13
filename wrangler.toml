@@ -1,9 +1,6 @@
 [build]
-command = "npm run build"
-pages_build_output_dir = ".next"
+command = "npx next build"
+output_dir = ".next"
 
 [build.environment]
-NODE_VERSION = "20"
-
-[site]
-bucket = ".next" 
+NODE_VERSION = "20" 
