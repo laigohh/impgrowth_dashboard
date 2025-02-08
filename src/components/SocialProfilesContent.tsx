@@ -12,6 +12,23 @@ interface SocialProfilesContentProps {
     userEmail: string
 }
 
+// First, let's create a helper component for the social link
+const SocialLink = ({ url }: { url: string | undefined | null }) => {
+    if (!url) return <span>-</span>;
+    
+    return (
+        <a 
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-500 hover:text-blue-700 cursor-pointer"
+            title="Open profile"
+        >
+            ✓
+        </a>
+    );
+};
+
 export default function SocialProfilesContent({ profiles, userEmail }: SocialProfilesContentProps) {
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
@@ -98,13 +115,27 @@ export default function SocialProfilesContent({ profiles, userEmail }: SocialPro
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">{profile.name}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">{profile.gmail}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">{profile.proxy || '-'}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">{profile.facebook_url ? '✓' : '-'}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">{profile.reddit_url ? '✓' : '-'}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">{profile.youtube_url ? '✓' : '-'}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">{profile.instagram_url ? '✓' : '-'}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">{profile.pinterest_url ? '✓' : '-'}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">{profile.twitter_url ? '✓' : '-'}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">{profile.thread_url ? '✓' : '-'}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                                                <SocialLink url={profile.facebook_url} />
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                                                <SocialLink url={profile.reddit_url} />
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                                                <SocialLink url={profile.youtube_url} />
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                                                <SocialLink url={profile.instagram_url} />
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                                                <SocialLink url={profile.pinterest_url} />
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                                                <SocialLink url={profile.twitter_url} />
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                                                <SocialLink url={profile.thread_url} />
+                                            </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
                                                 <div className="flex space-x-2">
                                                     <button 
