@@ -17,7 +17,10 @@ export async function addProfile(data: Omit<SocialProfile, 'id' | 'created_at' |
         const cleanData = Object.fromEntries(
             Object.entries(data).map(([key, value]) => [
                 key,
-                value === '' ? null : value
+                // Convert empty strings to null for optional fields
+                value === '' && key !== 'user_email' && key !== 'adspower_id' && key !== 'name' 
+                    ? null 
+                    : value
             ])
         );
 
@@ -76,7 +79,10 @@ export async function updateProfile(id: string, data: Partial<SocialProfile>) {
         const cleanData = Object.fromEntries(
             Object.entries(data).map(([key, value]) => [
                 key,
-                value === '' ? null : value
+                // Convert empty strings to null for optional fields
+                value === '' && key !== 'adspower_id' && key !== 'name' 
+                    ? null 
+                    : value
             ])
         );
 

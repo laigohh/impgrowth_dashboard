@@ -14,7 +14,7 @@ export default function EditProfileModal({ isOpen, onClose, onSubmit, profile }:
     const [formData, setFormData] = useState({
         adspower_id: profile.adspower_id,
         name: profile.name,
-        gmail: profile.gmail,
+        gmail: profile.gmail || '',
         proxy: profile.proxy || '',
         facebook_url: profile.facebook_url || '',
         reddit_url: profile.reddit_url || '',

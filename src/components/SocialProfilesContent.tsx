@@ -113,7 +113,9 @@ export default function SocialProfilesContent({ profiles, userEmail }: SocialPro
                                         <tr key={profile.id}>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">{profile.adspower_id}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">{profile.name}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">{profile.gmail}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
+                                                {profile.gmail || '-'}
+                                            </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">{profile.proxy || '-'}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                                                 <SocialLink url={profile.facebook_url} />
