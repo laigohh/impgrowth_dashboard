@@ -2,34 +2,35 @@ import { auth, signIn, signOut } from "@/auth"
  
 export default async function SignIn() {
     const session = await auth();
-    console.log(session)
     const user = session?.user
 
     return user ? (
-        <>
-            <h1 className="text-2xl">Welcome {user.name}</h1>
+        <div className="text-center space-y-4">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Welcome {user.name}</h1>
             <form
                 action={async () => {
                     "use server";
                     await signOut();
                 }}
             >
-                <button className="p-2 border-2 bg-blue-400">
+                <button className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors">
                     Sign Out
                 </button>
             </form>
-        </>
+        </div>
     ) : (
-        <>
-            <h1 className="text-xl">You are not authenticated. Click below to Sign In</h1>
+        <div className="text-center space-y-4">
+            <h1 className="text-xl font-semibold text-gray-900 dark:text-white">You are not authenticated. Click below to Sign In</h1>
             <form
                 action={async () => {
                     "use server";
                     await signIn("Google", {redirectTo: '/secret'});
                 }}
             >
-                <button className="p-2 border-2 bg-blue-400">Sign In</button>
+                <button className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors">
+                    Sign In
+                </button>
             </form>
-        </>
+        </div>
     );
 }
