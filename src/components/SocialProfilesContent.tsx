@@ -3,8 +3,9 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import AddProfileModal from './AddProfileModal'
-import { addProfile, deleteProfile } from '@/app/actions/profiles'
+import { addProfile, deleteProfile, updateProfile } from '@/app/actions/profiles'
 import type { SocialProfile } from '@/types/database'
+import EditProfileModal from './EditProfileModal'
 
 interface SocialProfilesContentProps {
     profiles: SocialProfile[] | null
@@ -13,6 +14,8 @@ interface SocialProfilesContentProps {
 
 export default function SocialProfilesContent({ profiles, userEmail }: SocialProfilesContentProps) {
     const [isModalOpen, setIsModalOpen] = useState(false)
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+    const [editingProfile, setEditingProfile] = useState<SocialProfile | null>(null)
 
     return (
         <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
@@ -107,14 +110,23 @@ export default function SocialProfilesContent({ profiles, userEmail }: SocialPro
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">{profile.twitter_url ? '✓' : '-'}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">{profile.thread_url ? '✓' : '-'}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
-                                                {profile.user_email === userEmail && (
+                                                <div className="flex space-x-2">
+                                                    <button 
+                                                        onClick={() => {
+                                                            setEditingProfile(profile)
+                                                            setIsEditModalOpen(true)
+                                                        }}
+                                                        className="text-blue-500 hover:text-blue-700"
+                                                    >
+                                                        ✎
+                                                    </button>
                                                     <button 
                                                         onClick={() => deleteProfile(profile.id)}
                                                         className="text-red-500 hover:text-red-700"
                                                     >
                                                         ✕
                                                     </button>
-                                                )}
+                                                </div>
                                             </td>
                                         </tr>
                                     ))}
@@ -131,6 +143,18 @@ export default function SocialProfilesContent({ profiles, userEmail }: SocialPro
                 onSubmit={addProfile}
                 userEmail={userEmail}
             />
+
+            {editingProfile && (
+                <EditProfileModal 
+                    isOpen={isEditModalOpen}
+                    onClose={() => {
+                        setIsEditModalOpen(false)
+                        setEditingProfile(null)
+                    }}
+                    onSubmit={updateProfile}
+                    profile={editingProfile}
+                />
+            )}
         </div>
     )
 } 

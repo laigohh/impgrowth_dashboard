@@ -50,7 +50,6 @@ export async function deleteProfile(id: string) {
             .from('social_profiles')
             .delete()
             .eq('id', id)
-            .eq('user_email', session.user?.email) // Ensure user can only delete their own profiles
 
         if (error) {
             console.error('Error deleting profile:', error)
@@ -62,5 +61,39 @@ export async function deleteProfile(id: string) {
     } catch (error) {
         console.error('Error in deleteProfile:', error)
         throw new Error(error instanceof Error ? error.message : 'Failed to delete profile')
+    }
+}
+
+export async function updateProfile(id: string, data: Partial<SocialProfile>) {
+    try {
+        // Verify user is authenticated
+        const session = await auth()
+        if (!session) {
+            throw new Error('Not authenticated')
+        }
+
+        // Clean up empty strings in optional fields
+        const cleanData = Object.fromEntries(
+            Object.entries(data).map(([key, value]) => [
+                key,
+                value === '' ? null : value
+            ])
+        );
+
+        const { error } = await supabaseServer
+            .from('social_profiles')
+            .update(cleanData)
+            .eq('id', id)
+
+        if (error) {
+            console.error('Error updating profile:', error)
+            throw new Error(error.message)
+        }
+
+        revalidatePath('/secret/social-profiles')
+        return { success: true }
+    } catch (error) {
+        console.error('Error in updateProfile:', error)
+        throw new Error(error instanceof Error ? error.message : 'Failed to update profile')
     }
 } 
