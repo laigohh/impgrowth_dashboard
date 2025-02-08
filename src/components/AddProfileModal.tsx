@@ -6,7 +6,7 @@ import type { SocialProfile } from '@/types/database'
 interface AddProfileModalProps {
     isOpen: boolean
     onClose: () => void
-    onSubmit: (data: Omit<SocialProfile, 'id' | 'created_at' | 'updated_at'>) => Promise<void>
+    onSubmit: (data: Omit<SocialProfile, 'id' | 'created_at' | 'updated_at'>) => Promise<{ success: boolean } | void>
     userEmail: string
 }
 
@@ -37,24 +37,26 @@ export default function AddProfileModal({ isOpen, onClose, onSubmit, userEmail }
         setIsSubmitting(true)
 
         try {
-            await onSubmit(formData)
-            onClose()
-            // Reset form
-            setFormData({
-                user_email: userEmail,
-                adspower_id: '',
-                name: '',
-                gmail: '',
-                proxy: '',
-                facebook_url: '',
-                reddit_url: '',
-                youtube_url: '',
-                instagram_url: '',
-                pinterest_url: '',
-                twitter_url: '',
-                thread_url: '',
-                active: true
-            })
+            const result = await onSubmit(formData)
+            if (result && result.success) {
+                onClose()
+                // Reset form
+                setFormData({
+                    user_email: userEmail,
+                    adspower_id: '',
+                    name: '',
+                    gmail: '',
+                    proxy: '',
+                    facebook_url: '',
+                    reddit_url: '',
+                    youtube_url: '',
+                    instagram_url: '',
+                    pinterest_url: '',
+                    twitter_url: '',
+                    thread_url: '',
+                    active: true
+                })
+            }
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to add profile')
         } finally {
