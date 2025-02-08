@@ -12,7 +12,6 @@ export default async function SocialProfiles() {
     const { data: profiles, error } = await supabaseServer
         .from('social_profiles')
         .select('*')
-        .eq('user_email', session.user?.email)
         .order('created_at', { ascending: false });
 
     if (error) {
