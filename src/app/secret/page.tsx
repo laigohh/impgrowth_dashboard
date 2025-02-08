@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 
 export default async function Secret() {
     const session = await auth();
@@ -13,18 +14,30 @@ export default async function Secret() {
                     <h2 className="text-xl font-bold text-gray-800 dark:text-white">ImpGrowth</h2>
                 </div>
                 <nav className="mt-4">
-                    <a href="#" className="block px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <Link 
+                        href="/secret" 
+                        className="block px-4 py-2 text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700"
+                    >
                         Dashboard
-                    </a>
-                    <a href="#" className="block px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    </Link>
+                    <Link 
+                        href="/secret/social-profiles" 
+                        className="block px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
                         Social Profiles
-                    </a>
-                    <a href="#" className="block px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    </Link>
+                    <Link 
+                        href="#" 
+                        className="block px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
                         Tasks
-                    </a>
-                    <a href="#" className="block px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    </Link>
+                    <Link 
+                        href="#" 
+                        className="block px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
                         Analytics
-                    </a>
+                    </Link>
                 </nav>
             </div>
 
