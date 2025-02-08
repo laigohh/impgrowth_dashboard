@@ -3,7 +3,7 @@ export type SocialProfile = {
   user_email: string
   adspower_id: string
   name: string
-  gmail: string
+  gmail?: string
   proxy?: string
   facebook_url?: string
   reddit_url?: string

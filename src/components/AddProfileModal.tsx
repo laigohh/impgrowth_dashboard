@@ -98,10 +98,9 @@ export default function AddProfileModal({ isOpen, onClose, onSubmit, userEmail }
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Gmail*</label>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Gmail</label>
                             <input
                                 type="email"
-                                required
                                 value={formData.gmail}
                                 onChange={(e) => setFormData(prev => ({ ...prev, gmail: e.target.value }))}
                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600"
