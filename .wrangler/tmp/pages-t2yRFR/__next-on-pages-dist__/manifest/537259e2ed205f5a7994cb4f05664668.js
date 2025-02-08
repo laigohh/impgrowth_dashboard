@@ -1,0 +1,1 @@
+var _={},t=(a,s,e)=>(_.__NEXT_FONT_MANIFEST=a.__NEXT_FONT_MANIFEST='{"pages":{},"app":{"/Users/jeremy/Desktop/impgrowth-dashboard/src/app/layout":["static/media/a34f9d1faa5f3315-s.p.woff2"]},"appUsingSizeAdjust":true,"pagesUsingSizeAdjust":false}',_.__REACT_LOADABLE_MANIFEST=a.__REACT_LOADABLE_MANIFEST="{}",_);export{t as __getNamedExports};
