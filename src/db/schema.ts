@@ -1,4 +1,3 @@
-import { sql } from 'drizzle-orm';
 import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
 
 export const socialProfiles = sqliteTable('social_profiles', {
@@ -14,11 +13,5 @@ export const socialProfiles = sqliteTable('social_profiles', {
   pinterest_url: text('pinterest_url'),
   twitter_url: text('twitter_url'),
   thread_url: text('thread_url'),
-  active: integer('active', { mode: 'boolean' }).notNull().default(true),
-  created_at: integer('created_at', { mode: 'timestamp' })
-    .notNull()
-    .default(sql`CURRENT_TIMESTAMP`),
-  updated_at: integer('updated_at', { mode: 'timestamp' })
-    .notNull()
-    .default(sql`CURRENT_TIMESTAMP`)
+  active: integer('active', { mode: 'boolean' }).notNull().default(true)
 }); 

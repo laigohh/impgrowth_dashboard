@@ -13,8 +13,7 @@ export default async function SocialProfiles() {
     try {
         const profiles = await db
             .select()
-            .from(socialProfiles)
-            .orderBy(socialProfiles.created_at, 'desc');
+            .from(socialProfiles);
 
         return <SocialProfilesContent profiles={profiles} userEmail={session.user?.email ?? ''} />;
     } catch (error) {
