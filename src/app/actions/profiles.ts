@@ -1,37 +1,38 @@
 'use server'
 
-import { supabaseServer } from "@/lib/supabase-server"
+import { db } from "@/db/client"
+import { socialProfiles } from "@/db/schema"
 import { revalidatePath } from "next/cache"
 import type { SocialProfile } from "@/types/database"
 import { auth } from "@/auth"
+import { eq } from 'drizzle-orm'
+import { nanoid } from 'nanoid'
 
 export async function addProfile(data: Omit<SocialProfile, 'id' | 'created_at' | 'updated_at'>) {
     try {
-        // Verify user is authenticated
         const session = await auth()
         if (!session) {
             throw new Error('Not authenticated')
         }
 
-        // Clean up empty strings in optional fields
+        // Clean up empty strings in optional fields and map fields correctly
         const cleanData = Object.fromEntries(
-            Object.entries(data).map(([key, value]) => [
+            Object.entries({
+                ...data,
+                // Ensure user_email is set from userEmail
+                user_email: data.user_email || data.userEmail,
+            }).map(([key, value]) => [
                 key,
-                // Convert empty strings to null for optional fields
                 value === '' && key !== 'user_email' && key !== 'adspower_id' && key !== 'name' 
                     ? null 
                     : value
             ])
         );
 
-        const { error } = await supabaseServer
-            .from('social_profiles')
-            .insert([cleanData])
-
-        if (error) {
-            console.error('Error adding profile:', error)
-            throw new Error(error.message)
-        }
+        await db.insert(socialProfiles).values({
+            id: nanoid(),
+            ...cleanData,
+        });
 
         revalidatePath('/secret/social-profiles')
         return { success: true }
@@ -43,21 +44,14 @@ export async function addProfile(data: Omit<SocialProfile, 'id' | 'created_at' |
 
 export async function deleteProfile(id: string) {
     try {
-        // Verify user is authenticated
         const session = await auth()
         if (!session) {
             throw new Error('Not authenticated')
         }
 
-        const { error } = await supabaseServer
-            .from('social_profiles')
-            .delete()
-            .eq('id', id)
-
-        if (error) {
-            console.error('Error deleting profile:', error)
-            throw new Error(error.message)
-        }
+        await db
+            .delete(socialProfiles)
+            .where(eq(socialProfiles.id, id));
 
         revalidatePath('/secret/social-profiles')
         return { success: true }
@@ -69,7 +63,6 @@ export async function deleteProfile(id: string) {
 
 export async function updateProfile(id: string, data: Partial<SocialProfile>) {
     try {
-        // Verify user is authenticated
         const session = await auth()
         if (!session) {
             throw new Error('Not authenticated')
@@ -79,22 +72,16 @@ export async function updateProfile(id: string, data: Partial<SocialProfile>) {
         const cleanData = Object.fromEntries(
             Object.entries(data).map(([key, value]) => [
                 key,
-                // Convert empty strings to null for optional fields
                 value === '' && key !== 'adspower_id' && key !== 'name' 
                     ? null 
                     : value
             ])
         );
 
-        const { error } = await supabaseServer
-            .from('social_profiles')
-            .update(cleanData)
-            .eq('id', id)
-
-        if (error) {
-            console.error('Error updating profile:', error)
-            throw new Error(error.message)
-        }
+        await db
+            .update(socialProfiles)
+            .set(cleanData)
+            .where(eq(socialProfiles.id, id));
 
         revalidatePath('/secret/social-profiles')
         return { success: true }

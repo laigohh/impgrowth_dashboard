@@ -1,6 +1,8 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
-import { supabaseServer } from "@/lib/supabase-server";
+import { db } from "@/db/client";
+import { socialProfiles } from "@/db/schema";
+import { desc } from "drizzle-orm";
 import type { SocialProfile } from "@/types/database";
 import SocialProfilesContent from "@/components/SocialProfilesContent";
 
@@ -8,15 +10,15 @@ export default async function SocialProfiles() {
     const session = await auth();
     if (!session) return redirect('/profile');
 
-    // Fetch social profiles
-    const { data: profiles, error } = await supabaseServer
-        .from('social_profiles')
-        .select('*')
-        .order('created_at', { ascending: false });
+    try {
+        const profiles = await db
+            .select()
+            .from(socialProfiles)
+            .orderBy(socialProfiles.created_at, 'desc');
 
-    if (error) {
+        return <SocialProfilesContent profiles={profiles} userEmail={session.user?.email ?? ''} />;
+    } catch (error) {
         console.error('Error fetching profiles:', error);
+        return <div>Error loading profiles</div>;
     }
-
-    return <SocialProfilesContent profiles={profiles} userEmail={session.user?.email ?? ''} />;
 } 
