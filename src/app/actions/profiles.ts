@@ -15,23 +15,30 @@ export async function addProfile(data: Omit<SocialProfile, 'id' | 'created_at' |
             throw new Error('Not authenticated')
         }
 
-        // Clean up empty strings in optional fields and map fields correctly
-        const cleanData = Object.fromEntries(
-            Object.entries({
-                ...data,
-                // Ensure user_email is set from userEmail
-                user_email: data.user_email || data.userEmail,
-            }).map(([key, value]) => [
-                key,
-                value === '' && key !== 'user_email' && key !== 'adspower_id' && key !== 'name' 
-                    ? null 
-                    : value
-            ])
-        );
+        // Validate required fields
+        if (!data.adspower_id || !data.name) {
+            throw new Error('adspower_id and name are required')
+        }
+
+        // Clean up empty strings in optional fields
+        const cleanData = {
+            adspower_id: data.adspower_id,
+            name: data.name,
+            gmail: data.gmail === '' ? null : data.gmail,
+            proxy: data.proxy === '' ? null : data.proxy,
+            facebook_url: data.facebook_url === '' ? null : data.facebook_url,
+            reddit_url: data.reddit_url === '' ? null : data.reddit_url,
+            youtube_url: data.youtube_url === '' ? null : data.youtube_url,
+            instagram_url: data.instagram_url === '' ? null : data.instagram_url,
+            pinterest_url: data.pinterest_url === '' ? null : data.pinterest_url,
+            twitter_url: data.twitter_url === '' ? null : data.twitter_url,
+            thread_url: data.thread_url === '' ? null : data.thread_url,
+            active: data.active
+        };
 
         await db.insert(socialProfiles).values({
             id: nanoid(),
-            ...cleanData,
+            ...cleanData
         });
 
         revalidatePath('/secret/social-profiles')

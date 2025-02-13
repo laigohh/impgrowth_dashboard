@@ -1,6 +1,5 @@
 export type SocialProfile = {
   id: string
-  user_email: string
   adspower_id: string
   name: string
   gmail?: string
