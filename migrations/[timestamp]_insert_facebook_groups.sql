@@ -1,0 +1,16 @@
+INSERT INTO facebook_groups (name, url) VALUES
+('Digital Faceless Queens', 'https://www.facebook.com/groups/461037856544830'),
+('Women Learning to Lead in Business', 'https://www.facebook.com/groups/1114978673633491'),
+('Women Entrepreneurs & Digital Product Success', 'https://www.facebook.com/groups/9362107010471392'),
+('Digital Marketing / Digital Products Playground', 'https://www.facebook.com/groups/1727010741391730'),
+('Digital Marketing Promo Network', 'https://www.facebook.com/groups/527796609857325'),
+('WFH Moms & Online Hustles', 'https://www.facebook.com/groups/1138736687836465'),
+('Digital Marketing Girl Boss', 'https://www.facebook.com/groups/939906811424324'),
+('Millionaire Mompreneurs Hub', 'https://www.facebook.com/groups/1618269535741586'),
+('Women Entrepreneurs Success Circle', 'https://www.facebook.com/groups/614384310936686'),
+('Women Entrepreneurs in Online Business', 'https://www.facebook.com/groups/2063709847400243'),
+('Women Learning & Growing Together', 'https://www.facebook.com/groups/579039344984304'),
+('The Female Entrepreneur Collective', 'https://www.facebook.com/groups/2027722134369108'),
+('Stay At Home Moms in Business', 'https://www.facebook.com/groups/601637519223787'),
+('Digital Marketing For Growth', 'https://www.facebook.com/groups/1586819345309789'),
+('Digital Marketing - ImpGrowth', 'https://www.facebook.com/groups/1146686613679308'); 

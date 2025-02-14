@@ -4,11 +4,14 @@ import { useState } from 'react'
 import Link from 'next/link'
 import AddProfileModal from './AddProfileModal'
 import { addProfile, deleteProfile, updateProfile } from '@/app/actions/profiles'
-import type { SocialProfile } from '@/types/database'
+import { createFBProfile } from '@/app/actions/fb-profiles'
+import type { SocialProfile, FacebookGroup } from '@/types/database'
 import EditProfileModal from './EditProfileModal'
 
+
 interface SocialProfilesContentProps {
-    profiles: SocialProfile[] | null
+    profiles: SocialProfile[]
+    groups: FacebookGroup[]
     userEmail: string
 }
 
@@ -29,10 +32,10 @@ const SocialLink = ({ url }: { url: string | undefined | null }) => {
     );
 };
 
-export default function SocialProfilesContent({ profiles, userEmail }: SocialProfilesContentProps) {
-    const [isModalOpen, setIsModalOpen] = useState(false)
+export default function SocialProfilesContent({ profiles, groups, userEmail }: SocialProfilesContentProps) {
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false)
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-    const [editingProfile, setEditingProfile] = useState<SocialProfile | null>(null)
+    const [selectedProfile, setSelectedProfile] = useState<SocialProfile | null>(null)
 
     return (
         <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
@@ -50,9 +53,15 @@ export default function SocialProfilesContent({ profiles, userEmail }: SocialPro
                     </Link>
                     <Link 
                         href="/secret/social-profiles" 
-                        className="block px-4 py-2 text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700"
+                        className="block px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
                         Social Profiles
+                    </Link>
+                    <Link 
+                        href="/secret/facebook-groups" 
+                        className="block px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                        Facebook Groups
                     </Link>
                     <Link 
                         href="#" 
@@ -78,12 +87,14 @@ export default function SocialProfilesContent({ profiles, userEmail }: SocialPro
                             <h1 className="text-2xl font-semibold text-gray-800 dark:text-white">Social Profiles</h1>
                             <span className="text-gray-500 dark:text-gray-400">({profiles?.length || 0} profiles)</span>
                         </div>
-                        <button 
-                            onClick={() => setIsModalOpen(true)}
-                            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
-                        >
-                            + Add Profile
-                        </button>
+                        <div className="space-x-4">
+                            <button
+                                onClick={() => setIsAddModalOpen(true)}
+                                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                            >
+                                Add Profile
+                            </button>
+                        </div>
                     </div>
                 </header>
 
@@ -142,7 +153,7 @@ export default function SocialProfilesContent({ profiles, userEmail }: SocialPro
                                                 <div className="flex space-x-2">
                                                     <button 
                                                         onClick={() => {
-                                                            setEditingProfile(profile)
+                                                            setSelectedProfile(profile)
                                                             setIsEditModalOpen(true)
                                                         }}
                                                         className="text-blue-500 hover:text-blue-700"
@@ -166,22 +177,36 @@ export default function SocialProfilesContent({ profiles, userEmail }: SocialPro
                 </main>
             </div>
 
-            <AddProfileModal 
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                onSubmit={addProfile}
-                userEmail={userEmail}
-            />
+            {/* Add Profile Modal */}
+            {isAddModalOpen && (
+                <AddProfileModal
+                    isOpen={isAddModalOpen}
+                    onClose={() => setIsAddModalOpen(false)}
+                    onSubmit={async (data, fbGroups) => {
+                        const result = await addProfile(data)
+                        if (result.success && fbGroups && fbGroups.length > 0 && result.id) {
+                            await createFBProfile({
+                                profile_id: result.id,
+                                groups: fbGroups
+                            })
+                        }
+                        return result
+                    }}
+                    userEmail={userEmail}
+                    groups={groups}
+                />
+            )}
 
-            {editingProfile && (
-                <EditProfileModal 
-                    isOpen={isEditModalOpen}
+            {/* Edit Profile Modal */}
+            {isEditModalOpen && selectedProfile && (
+                <EditProfileModal
+                    profile={selectedProfile}
+                    groups={groups}
                     onClose={() => {
                         setIsEditModalOpen(false)
-                        setEditingProfile(null)
+                        setSelectedProfile(null)
                     }}
                     onSubmit={updateProfile}
-                    profile={editingProfile}
                 />
             )}
         </div>

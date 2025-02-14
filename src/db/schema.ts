@@ -1,4 +1,5 @@
-import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, text, integer, primaryKey } from 'drizzle-orm/sqlite-core';
+import { sql } from 'drizzle-orm';
 
 export const socialProfiles = sqliteTable('social_profiles', {
   id: text('id').primaryKey(),
@@ -14,4 +15,35 @@ export const socialProfiles = sqliteTable('social_profiles', {
   twitter_url: text('twitter_url'),
   thread_url: text('thread_url'),
   active: integer('active', { mode: 'boolean' }).notNull().default(true)
+});
+
+export const facebookGroups = sqliteTable('facebook_groups', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  name: text('name').notNull(),
+  url: text('url').notNull().unique()
+});
+
+export const fbProfiles = sqliteTable('fb_profiles', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  profile_name: text('profile_name').notNull().unique(),
+  facebook_type: text('facebook_type', {
+    enum: ['admin', 'engagement']
+  }).notNull(),
+  created_at: integer('created_at', { mode: 'timestamp' }).notNull().default(sql`CURRENT_TIMESTAMP`)
+});
+
+export const profileGroups = sqliteTable('profile_groups', {
+  profile_id: text('profile_id')
+    .notNull()
+    .references(() => socialProfiles.id),
+  group_id: integer('group_id')
+    .notNull()
+    .references(() => facebookGroups.id),
+  role: text('role', { 
+    enum: ['admin', 'engagement'] 
+  }).notNull(),
+}, (table) => {
+  return {
+    pk: primaryKey({ columns: [table.profile_id, table.group_id] })
+  }
 }); 

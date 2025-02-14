@@ -1,16 +1,17 @@
 'use client'
 
-import { useState } from 'react'
-import type { SocialProfile } from '@/types/database'
+import { useState, useEffect } from 'react'
+import type { SocialProfile, FacebookGroup, GroupAssignment } from '@/types/database'
+import { db } from '@/db/client'
 
 interface EditProfileModalProps {
-    isOpen: boolean
-    onClose: () => void
-    onSubmit: (id: string, data: Partial<SocialProfile>) => Promise<{ success: boolean } | void>
     profile: SocialProfile
+    groups: FacebookGroup[]
+    onClose: () => void
+    onSubmit: (id: string, data: Partial<SocialProfile>, fbGroups?: GroupAssignment[]) => Promise<{ success: boolean }>
 }
 
-export default function EditProfileModal({ isOpen, onClose, onSubmit, profile }: EditProfileModalProps) {
+export default function EditProfileModal({ profile, groups, onClose, onSubmit }: EditProfileModalProps) {
     const [formData, setFormData] = useState({
         adspower_id: profile.adspower_id,
         name: profile.name,
@@ -25,10 +26,32 @@ export default function EditProfileModal({ isOpen, onClose, onSubmit, profile }:
         thread_url: profile.thread_url || '',
         active: profile.active
     })
+    const [fbGroups, setFbGroups] = useState<GroupAssignment[]>([])
     const [error, setError] = useState<string | null>(null)
     const [isSubmitting, setIsSubmitting] = useState(false)
 
-    if (!isOpen) return null
+    useEffect(() => {
+        async function fetchGroupAssignments() {
+            try {
+                const response = await fetch(`/api/profile-groups/${profile.id}`)
+                if (response.ok) {
+                    const data = await response.json()
+                    setFbGroups(data.map((g: any) => ({
+                        group_id: g.group_id,
+                        role: g.role
+                    })))
+                }
+            } catch (error) {
+                console.error('Error fetching group assignments:', error)
+            }
+        }
+
+        if (profile.facebook_url) {
+            fetchGroupAssignments()
+        }
+    }, [profile.id, profile.facebook_url])
+
+    if (!profile) return null
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -36,7 +59,11 @@ export default function EditProfileModal({ isOpen, onClose, onSubmit, profile }:
         setIsSubmitting(true)
 
         try {
-            const result = await onSubmit(profile.id, formData)
+            const result = await onSubmit(
+                profile.id, 
+                formData,
+                formData.facebook_url ? fbGroups : undefined
+            )
             if (result && result.success) {
                 onClose()
             }
@@ -49,7 +76,7 @@ export default function EditProfileModal({ isOpen, onClose, onSubmit, profile }:
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-2xl">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
                 <h2 className="text-2xl font-semibold text-gray-800 dark:text-white mb-4">Edit Profile</h2>
                 
                 {error && (
@@ -172,6 +199,62 @@ export default function EditProfileModal({ isOpen, onClose, onSubmit, profile }:
                             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600"
                         />
                     </div>
+
+                    {formData.facebook_url && (
+                        <div className="space-y-4 border-t pt-4 mt-4">
+                            <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300">
+                                Facebook Groups
+                                <span className="text-sm text-gray-500 ml-2">
+                                    (Select groups and assign roles)
+                                </span>
+                            </h3>
+                            <div className="space-y-3 max-h-60 overflow-y-auto">
+                                {groups.map(group => (
+                                    <div 
+                                        key={group.id} 
+                                        className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                                    >
+                                        <div className="flex-1">
+                                            <p className="font-medium text-gray-800 dark:text-gray-200">{group.name}</p>
+                                            <a 
+                                                href={group.url} 
+                                                target="_blank" 
+                                                rel="noopener noreferrer" 
+                                                className="text-sm text-blue-500 hover:underline"
+                                            >
+                                                {group.url}
+                                            </a>
+                                        </div>
+                                        <select
+                                            value={fbGroups.find(g => g.group_id === group.id)?.role || ''}
+                                            onChange={(e) => {
+                                                const value = e.target.value as 'admin' | 'engagement' | ''
+                                                if (!value) {
+                                                    setFbGroups(prev => prev.filter(g => g.group_id !== group.id))
+                                                } else {
+                                                    setFbGroups(prev => {
+                                                        const existing = prev.find(g => g.group_id === group.id)
+                                                        if (existing) {
+                                                            return prev.map(g => g.group_id === group.id ? { ...g, role: value } : g)
+                                                        }
+                                                        return [...prev, { group_id: group.id, role: value }]
+                                                    })
+                                                }
+                                            }}
+                                            className="ml-4 p-2 border rounded bg-white dark:bg-gray-700"
+                                        >
+                                            <option value="">Select Role</option>
+                                            <option value="admin">Admin</option>
+                                            <option value="engagement">Engagement</option>
+                                        </select>
+                                    </div>
+                                ))}
+                            </div>
+                            {fbGroups.length === 0 && (
+                                <p className="text-amber-500 text-sm">Please select at least one group and role</p>
+                            )}
+                        </div>
+                    )}
 
                     <div className="flex justify-end space-x-3 mt-6">
                         <button

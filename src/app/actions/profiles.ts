@@ -1,14 +1,14 @@
 'use server'
 
 import { db } from "@/db/client"
-import { socialProfiles } from "@/db/schema"
+import { socialProfiles, profileGroups } from "@/db/schema"
 import { revalidatePath } from "next/cache"
-import type { SocialProfile } from "@/types/database"
+import type { SocialProfile, GroupAssignment } from "@/types/database"
 import { auth } from "@/auth"
 import { eq } from 'drizzle-orm'
 import { nanoid } from 'nanoid'
 
-export async function addProfile(data: Omit<SocialProfile, 'id' | 'created_at' | 'updated_at'>) {
+export async function addProfile(data: Omit<SocialProfile, 'id' | 'created_at' | 'updated_at'>): Promise<{ success: boolean, id?: string }> {
     try {
         const session = await auth()
         if (!session) {
@@ -20,8 +20,12 @@ export async function addProfile(data: Omit<SocialProfile, 'id' | 'created_at' |
             throw new Error('adspower_id and name are required')
         }
 
+        // Generate a unique ID
+        const id = nanoid()
+
         // Clean up empty strings in optional fields
         const cleanData = {
+            id, // Add the generated ID
             adspower_id: data.adspower_id,
             name: data.name,
             gmail: data.gmail === '' ? null : data.gmail,
@@ -36,16 +40,15 @@ export async function addProfile(data: Omit<SocialProfile, 'id' | 'created_at' |
             active: data.active
         };
 
-        await db.insert(socialProfiles).values({
-            id: nanoid(),
-            ...cleanData
-        });
+        const [result] = await db.insert(socialProfiles)
+            .values(cleanData)
+            .returning({ id: socialProfiles.id });
 
         revalidatePath('/secret/social-profiles')
-        return { success: true }
+        return { success: true, id: result.id };
     } catch (error) {
-        console.error('Error in addProfile:', error)
-        throw new Error(error instanceof Error ? error.message : 'Failed to add profile')
+        console.error('Error adding profile:', error);
+        throw new Error(error instanceof Error ? error.message : 'Failed to add profile');
     }
 }
 
@@ -68,7 +71,11 @@ export async function deleteProfile(id: string) {
     }
 }
 
-export async function updateProfile(id: string, data: Partial<SocialProfile>) {
+export async function updateProfile(
+    id: string, 
+    data: Partial<SocialProfile>, 
+    fbGroups?: GroupAssignment[]
+) {
     try {
         const session = await auth()
         if (!session) {
@@ -85,10 +92,34 @@ export async function updateProfile(id: string, data: Partial<SocialProfile>) {
             ])
         );
 
-        await db
-            .update(socialProfiles)
-            .set(cleanData)
-            .where(eq(socialProfiles.id, id));
+        await db.transaction(async (tx) => {
+            // Update profile data
+            await tx
+                .update(socialProfiles)
+                .set(cleanData)
+                .where(eq(socialProfiles.id, id));
+
+            // If facebook_url exists and fbGroups are provided, update group assignments
+            if (data.facebook_url && fbGroups) {
+                // Delete existing assignments
+                await tx
+                    .delete(profileGroups)
+                    .where(eq(profileGroups.profile_id, id));
+
+                // Insert new assignments
+                if (fbGroups.length > 0) {
+                    await tx
+                        .insert(profileGroups)
+                        .values(
+                            fbGroups.map(group => ({
+                                profile_id: id,
+                                group_id: group.group_id,
+                                role: group.role
+                            }))
+                        );
+                }
+            }
+        });
 
         revalidatePath('/secret/social-profiles')
         return { success: true }
