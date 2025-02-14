@@ -9,6 +9,12 @@ const nextConfig = {
       serverActions: {
         bodySizeLimit: '2mb'
       }
+    },
+    output: 'standalone',
+    generateStaticParams: async () => {
+        return {
+            excludeRoute: (route) => route.startsWith('/api/')
+        }
     }
 };
 

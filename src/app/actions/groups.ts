@@ -3,6 +3,7 @@
 import { db } from "@/db/client"
 import { facebookGroups } from "@/db/schema"
 import { revalidatePath } from "next/cache"
+import { sql } from "drizzle-orm"
 
 export async function addFacebookGroup(name: string, url: string) {
     try {
@@ -21,6 +22,17 @@ export async function addFacebookGroup(name: string, url: string) {
 
 export async function seedFacebookGroups() {
     try {
+        // First check if groups already exist
+        const existingGroups = await db
+            .select({ count: sql`count(*)` })
+            .from(facebookGroups);
+
+        // If groups already exist, skip seeding
+        if (existingGroups[0].count > 0) {
+            console.log('Groups already seeded, skipping...');
+            return { success: true };
+        }
+
         await db.insert(facebookGroups).values([
             { name: 'Digital Faceless Queens', url: 'https://www.facebook.com/groups/461037856544830' },
             { name: 'Women Learning to Lead in Business', url: 'https://www.facebook.com/groups/1114978673633491' },
