@@ -36,6 +36,20 @@ export default function SocialProfilesContent({ profiles, groups, userEmail }: S
     const [isAddModalOpen, setIsAddModalOpen] = useState(false)
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
     const [selectedProfile, setSelectedProfile] = useState<SocialProfile | null>(null)
+    const [error, setError] = useState<string | null>(null)
+
+    const handleDelete = async (id: string) => {
+        try {
+            setError(null)
+            const result = await deleteProfile(id)
+            if (!result.success) {
+                throw new Error('Failed to delete profile')
+            }
+        } catch (err) {
+            console.error('Error deleting profile:', err)
+            setError(err instanceof Error ? err.message : 'Failed to delete profile')
+        }
+    }
 
     return (
         <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
@@ -161,7 +175,7 @@ export default function SocialProfilesContent({ profiles, groups, userEmail }: S
                                                         ✎
                                                     </button>
                                                     <button 
-                                                        onClick={() => deleteProfile(profile.id)}
+                                                        onClick={() => handleDelete(profile.id)}
                                                         className="text-red-500 hover:text-red-700"
                                                     >
                                                         ✕
@@ -208,6 +222,12 @@ export default function SocialProfilesContent({ profiles, groups, userEmail }: S
                     }}
                     onSubmit={updateProfile}
                 />
+            )}
+
+            {error && (
+                <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                    {error}
+                </div>
             )}
         </div>
     )

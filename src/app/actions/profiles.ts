@@ -59,9 +59,17 @@ export async function deleteProfile(id: string) {
             throw new Error('Not authenticated')
         }
 
-        await db
-            .delete(socialProfiles)
-            .where(eq(socialProfiles.id, id));
+        await db.transaction(async (tx) => {
+            // First delete any associated group assignments
+            await tx
+                .delete(profileGroups)
+                .where(eq(profileGroups.profile_id, id))
+
+            // Then delete the profile
+            await tx
+                .delete(socialProfiles)
+                .where(eq(socialProfiles.id, id))
+        })
 
         revalidatePath('/secret/social-profiles')
         return { success: true }
