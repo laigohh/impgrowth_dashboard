@@ -11,11 +11,7 @@ const nextConfig = {
       }
     },
     output: 'standalone',
-    generateStaticParams: async () => {
-        return {
-            excludeRoute: (route) => route.startsWith('/api/')
-        }
-    }
+    excludeRoute: (route) => route.startsWith('/api/')
 };
 
 export default nextConfig;

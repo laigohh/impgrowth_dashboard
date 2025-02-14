@@ -24,7 +24,9 @@ export async function seedFacebookGroups() {
     try {
         // First check if groups already exist
         const existingGroups = await db
-            .select({ count: sql`count(*)` })
+            .select({
+                count: sql<number>`cast(count(*) as integer)`
+            })
             .from(facebookGroups);
 
         // If groups already exist, skip seeding
