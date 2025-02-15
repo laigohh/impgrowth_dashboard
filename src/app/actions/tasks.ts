@@ -7,6 +7,14 @@ import { nanoid } from 'nanoid'
 import { revalidatePath } from "next/cache"
 import type { AdminTaskType } from "@/types/database"
 
+interface NewTask {
+    id: string
+    profile_id: string
+    task_type: AdminTaskType
+    target_group_id?: number
+    order: number
+}
+
 // Generate tasks for all admin profiles
 export async function generateDailyTasks() {
     try {
@@ -58,7 +66,7 @@ export async function generateDailyTasks() {
                 )
 
             // Create all tasks for this profile first
-            const profileTasks = []
+            const profileTasks: NewTask[] = []
             
             // Create group-specific tasks
             for (const taskType of taskTypes) {
@@ -69,7 +77,7 @@ export async function generateDailyTasks() {
                             profile_id: profile.id,
                             task_type: taskType,
                             target_group_id: group_id,
-                            order: Math.floor(Math.random() * 1000000) // Random order between 0 and 999999
+                            order: Math.floor(Math.random() * 1000000)
                         })
                     }
                 } else {
@@ -77,12 +85,12 @@ export async function generateDailyTasks() {
                         id: nanoid(),
                         profile_id: profile.id,
                         task_type: taskType,
-                        order: Math.floor(Math.random() * 1000000) // Random order between 0 and 999999
+                        order: Math.floor(Math.random() * 1000000)
                     })
                 }
             }
 
-            // No need to shuffle since we're using random order numbers
+            // Insert tasks
             await db.transaction(async (tx) => {
                 for (const task of profileTasks) {
                     await tx.insert(tasks).values(task)
