@@ -10,8 +10,7 @@ const nextConfig = {
         bodySizeLimit: '2mb'
       }
     },
-    output: 'standalone',
-    excludeRoute: (route) => route.startsWith('/api/')
+    output: 'standalone'
 };
 
 export default nextConfig;
