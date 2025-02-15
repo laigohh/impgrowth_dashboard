@@ -46,4 +46,24 @@ export const profileGroups = sqliteTable('profile_groups', {
   return {
     pk: primaryKey({ columns: [table.profile_id, table.group_id] })
   }
+});
+
+export const tasks = sqliteTable('tasks', {
+  id: text('id').primaryKey(),
+  profile_id: text('profile_id')
+    .notNull()
+    .references(() => socialProfiles.id),
+  task_type: text('task_type', {
+    enum: ['approve_post', 'comment_group', 'like_group_post', 'like_comment', 'schedule_post', 'answer_dm', 'like_feed']
+  }).notNull(),
+  status: text('status', {
+    enum: ['pending', 'completed']
+  }).notNull().default('pending'),
+  target_group_id: integer('target_group_id')
+    .references(() => facebookGroups.id),
+  target_url: text('target_url'),
+  created_at: integer('created_at', { mode: 'timestamp' })
+    .notNull()
+    .default(sql`CURRENT_TIMESTAMP`),
+  completed_at: integer('completed_at', { mode: 'timestamp' })
 }); 

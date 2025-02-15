@@ -110,7 +110,7 @@ export default function SocialProfilesContent({ profiles, groups, userEmail }: S
                         Facebook Groups
                     </Link>
                     <Link 
-                        href="#" 
+                        href="/secret/tasks" 
                         className="block px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
                         Tasks
