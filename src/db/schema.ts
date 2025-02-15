@@ -66,5 +66,5 @@ export const tasks = sqliteTable('tasks', {
     .notNull()
     .default(sql`CURRENT_TIMESTAMP`),
   completed_at: integer('completed_at', { mode: 'timestamp' }),
-  order: integer()
+  order: integer('order')
 }); 
