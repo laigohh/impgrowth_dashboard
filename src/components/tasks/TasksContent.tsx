@@ -71,28 +71,27 @@ export default function TasksContent({ profiles }: TasksContentProps) {
     }
 
     return (
-        <div className="p-8">
-            <div className="container mx-auto">
-                {/* Header */}
-                <div className="flex justify-between items-center mb-6">
-                    <h1 className="text-2xl font-bold text-gray-900">Tasks</h1>
-                    <button
-                        onClick={handleGenerateTasks}
-                        disabled={loading === 'generating'}
-                        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:bg-blue-300"
-                    >
-                        {loading === 'generating' ? 'Generating...' : 'Generate Tasks'}
-                    </button>
+        <>
+            <header className="bg-white shadow-sm">
+                <div className="px-8 py-6">
+                    <div className="flex justify-between items-center">
+                        <h1 className="text-2xl font-semibold text-gray-800">Tasks</h1>
+                        <span className="text-sm text-gray-500">
+                            ({profiles.length} profiles with tasks)
+                        </span>
+                    </div>
                 </div>
+            </header>
 
-                <div className="grid gap-4">
+            <main className="p-8">
+                <div className="space-y-6">
                     {profiles.map(profile => {
                         const tasks = randomizedTasks[profile.profile_id] || profile.tasks
 
                         return (
-                            <div
+                            <div 
                                 key={profile.profile_id}
-                                className="bg-white rounded-lg shadow overflow-hidden"
+                                className="bg-white rounded-lg shadow-sm"
                             >
                                 {/* Profile Header - Always visible */}
                                 <div 
@@ -139,7 +138,7 @@ export default function TasksContent({ profiles }: TasksContentProps) {
                         </div>
                     )}
                 </div>
-            </div>
-        </div>
+            </main>
+        </>
     )
 } 

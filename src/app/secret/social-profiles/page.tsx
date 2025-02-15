@@ -5,7 +5,6 @@ import { socialProfiles, facebookGroups } from "@/db/schema";
 import { desc } from "drizzle-orm";
 import type { SocialProfile } from "@/types/database";
 import SocialProfilesContent from "@/components/SocialProfilesContent";
-import Sidebar from "@/components/Sidebar";
 
 export default async function SocialProfiles() {
     const session = await auth();
@@ -18,15 +17,12 @@ export default async function SocialProfiles() {
         ]);
 
         return (
-            <div className="flex h-screen bg-gray-50">
-                <Sidebar />
-                <div className="flex-1">
-                    <SocialProfilesContent 
-                        profiles={profiles} 
-                        groups={groups}
-                        userEmail={session.user?.email ?? ''} 
-                    />
-                </div>
+            <div className="flex-1">
+                <SocialProfilesContent 
+                    profiles={profiles} 
+                    groups={groups}
+                    userEmail={session.user?.email ?? ''} 
+                />
             </div>
         );
     } catch (error) {

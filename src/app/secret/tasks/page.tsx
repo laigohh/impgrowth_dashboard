@@ -64,11 +64,8 @@ export default async function Tasks() {
         }, {} as Record<string, Profile>)
 
         return (
-            <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
-                <Sidebar />
-                <div className="flex-1">
-                    <TasksContent profiles={Object.values(groupedTasks)} />
-                </div>
+            <div className="flex-1">
+                <TasksContent profiles={Object.values(groupedTasks)} />
             </div>
         )
     } catch (error) {
