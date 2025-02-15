@@ -3,7 +3,7 @@ import { facebookGroups, profileGroups, socialProfiles } from "@/db/schema"
 import { auth } from "@/auth"
 import { redirect } from "next/navigation"
 import { eq, and } from "drizzle-orm"
-import Link from "next/link"
+import Sidebar from "@/components/Sidebar"
 
 interface AdminProfile {
     profile_name: string;
@@ -56,53 +56,14 @@ export default async function FacebookGroups() {
     );
 
     return (
-        <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
-            {/* Sidebar */}
-            <div className="w-64 bg-white dark:bg-gray-800 shadow-lg">
-                <div className="p-4">
-                    <h2 className="text-xl font-bold text-gray-800 dark:text-white">ImpGrowth</h2>
-                </div>
-                <nav className="mt-4">
-                    <Link 
-                        href="/secret" 
-                        className="block px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    >
-                        Dashboard
-                    </Link>
-                    <Link 
-                        href="/secret/social-profiles" 
-                        className="block px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    >
-                        Social Profiles
-                    </Link>
-                    <Link 
-                        href="/secret/facebook-groups" 
-                        className="block px-4 py-2 text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700"
-                    >
-                        Facebook Groups
-                    </Link>
-                    <Link 
-                        href="/secret/tasks" 
-                        className="block px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    >
-                        Tasks
-                    </Link>
-                    <Link 
-                        href="#" 
-                        className="block px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    >
-                        Analytics
-                    </Link>
-                </nav>
-            </div>
-
-            {/* Main Content */}
+        <div className="flex h-screen bg-gray-50">
+            <Sidebar />
             <div className="flex-1 overflow-auto">
-                <header className="bg-white dark:bg-gray-800 shadow-md">
+                <header className="bg-white shadow-sm">
                     <div className="px-8 py-6">
                         <div className="flex justify-between items-center">
-                            <h1 className="text-2xl font-semibold text-gray-800 dark:text-white">Facebook Groups</h1>
-                            <span className="text-sm text-gray-500 dark:text-gray-400">
+                            <h1 className="text-2xl font-semibold text-gray-800">Facebook Groups</h1>
+                            <span className="text-sm text-gray-500">
                                 ({groupsWithAdmins.length} groups)
                             </span>
                         </div>
@@ -114,16 +75,16 @@ export default async function FacebookGroups() {
                         {groupsWithAdmins.map(group => (
                             <div 
                                 key={group.id} 
-                                className="bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200"
+                                className="bg-white rounded-lg shadow-sm hover:shadow transition-shadow duration-200"
                             >
                                 <div className="p-6">
                                     <div className="flex justify-between items-start">
                                         <div>
-                                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                                            <h3 className="text-lg font-semibold text-gray-800 mb-2">
                                                 {group.name}
                                             </h3>
                                             <div className="space-y-2">
-                                                <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
+                                                <div className="flex items-center text-sm text-gray-600">
                                                     <span className="font-medium mr-2">Admins:</span>
                                                     <span>
                                                         {group.admins.map(admin => admin.profile_name).join(', ') || 'No admins'}
@@ -135,7 +96,7 @@ export default async function FacebookGroups() {
                                             href={group.url}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="flex items-center gap-2 px-4 py-2 text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                                            className="flex items-center gap-2 px-4 py-2 text-sm text-blue-600 hover:text-blue-700"
                                         >
                                             Visit Group
                                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

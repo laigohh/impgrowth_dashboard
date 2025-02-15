@@ -38,6 +38,8 @@ export type GroupAssignment = {
   role: 'admin' | 'engagement';
 }
 
+export type TaskStatus = 'pending' | 'completed'
+
 export type AdminTaskType = 
   | 'approve_post'
   | 'comment_group'
@@ -47,15 +49,23 @@ export type AdminTaskType =
   | 'answer_dm'
   | 'like_feed'
 
-export type TaskStatus = 'pending' | 'completed'
-
 export type Task = {
   id: string
   profile_id: string
   task_type: AdminTaskType
   status: TaskStatus
-  target_group_id?: number
-  target_url?: string
+  target_group_id: number | null
+  target_url: string | null
   created_at: Date
-  completed_at?: Date
+  completed_at: Date | null
+  profile_name: string | null
+  adspower_id: string
+  group_name: string | null
+}
+
+export type Profile = {
+  profile_id: string
+  profile_name: string | null
+  adspower_id: string
+  tasks: Task[]
 } 
