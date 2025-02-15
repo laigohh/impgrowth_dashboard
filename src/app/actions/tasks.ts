@@ -45,7 +45,6 @@ export async function generateDailyTasks() {
 
         // Generate tasks for each admin profile
         for (const profile of adminProfiles) {
-            // Get groups where this profile is admin
             const adminGroups = await db
                 .select({
                     group_id: profileGroups.group_id
@@ -58,27 +57,35 @@ export async function generateDailyTasks() {
                     )
                 )
 
-            // Create tasks
-            await db.transaction(async (tx) => {
-                for (const taskType of taskTypes) {
-                    // For group-specific tasks, create one for each group
-                    if (['approve_post', 'comment_group', 'like_group_post', 'like_comment', 'schedule_post'].includes(taskType)) {
-                        for (const { group_id } of adminGroups) {
-                            await tx.insert(tasks).values({
-                                id: nanoid(),
-                                profile_id: profile.id,
-                                task_type: taskType,
-                                target_group_id: group_id
-                            })
-                        }
-                    } else {
-                        // For non-group-specific tasks, create one per profile
-                        await tx.insert(tasks).values({
+            // Create all tasks for this profile first
+            const profileTasks = []
+            
+            // Create group-specific tasks
+            for (const taskType of taskTypes) {
+                if (['approve_post', 'comment_group', 'like_group_post', 'like_comment', 'schedule_post'].includes(taskType)) {
+                    for (const { group_id } of adminGroups) {
+                        profileTasks.push({
                             id: nanoid(),
                             profile_id: profile.id,
-                            task_type: taskType
+                            task_type: taskType,
+                            target_group_id: group_id,
+                            order: Math.floor(Math.random() * 1000000) // Random order between 0 and 999999
                         })
                     }
+                } else {
+                    profileTasks.push({
+                        id: nanoid(),
+                        profile_id: profile.id,
+                        task_type: taskType,
+                        order: Math.floor(Math.random() * 1000000) // Random order between 0 and 999999
+                    })
+                }
+            }
+
+            // No need to shuffle since we're using random order numbers
+            await db.transaction(async (tx) => {
+                for (const task of profileTasks) {
+                    await tx.insert(tasks).values(task)
                 }
             })
         }
@@ -89,6 +96,15 @@ export async function generateDailyTasks() {
         console.error('Error generating tasks:', error)
         throw new Error(error instanceof Error ? error.message : 'Failed to generate tasks')
     }
+}
+
+function shuffleArray<T>(array: T[]): T[] {
+    const newArray = [...array]
+    for (let i = newArray.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [newArray[i], newArray[j]] = [newArray[j], newArray[i]]
+    }
+    return newArray
 }
 
 export async function completeTask(taskId: string) {

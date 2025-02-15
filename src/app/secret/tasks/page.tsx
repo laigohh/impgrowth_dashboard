@@ -2,7 +2,7 @@ import { auth } from "@/auth"
 import { redirect } from "next/navigation"
 import { db } from "@/db/client"
 import { tasks, socialProfiles, facebookGroups } from "@/db/schema"
-import { eq, and, isNotNull } from "drizzle-orm"
+import { eq, and, isNotNull, sql } from "drizzle-orm"
 import TasksContent from "@/components/tasks/TasksContent"
 import Sidebar from "@/components/Sidebar"
 import type { AdminTaskType, TaskStatus, Profile } from "@/types/database"
@@ -25,6 +25,7 @@ export default async function Tasks() {
                 profile_name: socialProfiles.name,
                 adspower_id: socialProfiles.adspower_id,
                 group_name: facebookGroups.name,
+                order: tasks.order,
             })
             .from(tasks)
             .leftJoin(socialProfiles, eq(tasks.profile_id, socialProfiles.id))
@@ -33,6 +34,7 @@ export default async function Tasks() {
                 eq(tasks.status, 'pending'),
                 isNotNull(socialProfiles.adspower_id)
             ))
+            .orderBy(sql`COALESCE(${tasks.order}, 999999)`)
 
         // Group tasks by profile with proper typing
         const groupedTasks = tasksList.reduce((acc, task) => {
