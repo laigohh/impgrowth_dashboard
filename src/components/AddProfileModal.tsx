@@ -183,9 +183,6 @@ export default function AddProfileModal({ isOpen, onClose, onSubmit, userEmail, 
                                             </div>
                                         ))}
                                     </div>
-                                    {fbGroups.length === 0 && (
-                                        <p className="text-amber-500 text-sm">Please select at least one group and role</p>
-                                    )}
                                 </div>
                             )}
 
@@ -206,7 +203,7 @@ export default function AddProfileModal({ isOpen, onClose, onSubmit, userEmail, 
                         <button
                             type="submit"
                             className="px-4 py-2 text-sm font-medium text-white bg-blue-500 hover:bg-blue-600 rounded-md transition-colors disabled:opacity-50"
-                            disabled={isSubmitting || (!!formData.facebook_url && fbGroups.length === 0)}
+                            disabled={isSubmitting}
                         >
                             {isSubmitting ? 'Adding...' : 'Add Profile'}
                         </button>
