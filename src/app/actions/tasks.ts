@@ -13,6 +13,11 @@ interface NewTask {
     task_type: AdminTaskType
     target_group_id?: number
     order: number
+    action_count: number | null
+}
+
+function getRandomNumber(min: number, max: number): number {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 // Generate tasks for all admin profiles
@@ -40,18 +45,7 @@ export async function generateDailyTasks() {
             )
             .groupBy(socialProfiles.id)
 
-        // Define task types that need to be created for each admin
-        const taskTypes: AdminTaskType[] = [
-            'approve_post',
-            'comment_group',
-            'like_group_post',
-            'like_comment',
-            'schedule_post',
-            'answer_dm',
-            'like_feed'
-        ]
-
-        // Generate tasks for each admin profile
+        // For each admin profile
         for (const profile of adminProfiles) {
             const adminGroups = await db
                 .select({
@@ -65,30 +59,72 @@ export async function generateDailyTasks() {
                     )
                 )
 
-            // Create all tasks for this profile first
             const profileTasks: NewTask[] = []
             
-            // Create group-specific tasks
-            for (const taskType of taskTypes) {
-                if (['approve_post', 'comment_group', 'like_group_post', 'like_comment', 'schedule_post'].includes(taskType)) {
-                    for (const { group_id } of adminGroups) {
-                        profileTasks.push({
-                            id: nanoid(),
-                            profile_id: profile.id,
-                            task_type: taskType,
-                            target_group_id: group_id,
-                            order: Math.floor(Math.random() * 1000000)
-                        })
-                    }
-                } else {
-                    profileTasks.push({
-                        id: nanoid(),
-                        profile_id: profile.id,
-                        task_type: taskType,
-                        order: Math.floor(Math.random() * 1000000)
-                    })
-                }
+            // For each group, generate tasks with action counts
+            for (const { group_id } of adminGroups) {
+                // Generate group-specific tasks with counts
+                profileTasks.push({
+                    id: nanoid(),
+                    profile_id: profile.id,
+                    task_type: 'approve_post',
+                    target_group_id: group_id,
+                    order: Math.floor(Math.random() * 1000000),
+                    action_count: null // Approval doesn't need a count
+                })
+
+                profileTasks.push({
+                    id: nanoid(),
+                    profile_id: profile.id,
+                    task_type: 'comment_group',
+                    target_group_id: group_id,
+                    order: Math.floor(Math.random() * 1000000),
+                    action_count: getRandomNumber(2, 3)
+                })
+
+                profileTasks.push({
+                    id: nanoid(),
+                    profile_id: profile.id,
+                    task_type: 'like_group_post',
+                    target_group_id: group_id,
+                    order: Math.floor(Math.random() * 1000000),
+                    action_count: getRandomNumber(2, 4)
+                })
+
+                profileTasks.push({
+                    id: nanoid(),
+                    profile_id: profile.id,
+                    task_type: 'like_comment',
+                    target_group_id: group_id,
+                    order: Math.floor(Math.random() * 1000000),
+                    action_count: getRandomNumber(1, 3)
+                })
             }
+
+            // Add non-group-specific tasks
+            profileTasks.push({
+                id: nanoid(),
+                profile_id: profile.id,
+                task_type: 'schedule_post',
+                order: Math.floor(Math.random() * 1000000),
+                action_count: null
+            })
+
+            profileTasks.push({
+                id: nanoid(),
+                profile_id: profile.id,
+                task_type: 'answer_dm',
+                order: Math.floor(Math.random() * 1000000),
+                action_count: null
+            })
+
+            profileTasks.push({
+                id: nanoid(),
+                profile_id: profile.id,
+                task_type: 'like_feed',
+                order: Math.floor(Math.random() * 1000000),
+                action_count: getRandomNumber(3, 5)
+            })
 
             // Insert tasks
             await db.transaction(async (tx) => {

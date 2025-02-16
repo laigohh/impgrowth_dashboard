@@ -61,6 +61,7 @@ export type Task = {
   profile_name: string | null
   adspower_id: string
   group_name: string | null
+  action_count: number | null
 }
 
 export type Profile = {

@@ -26,6 +26,7 @@ export default async function Tasks() {
                 adspower_id: socialProfiles.adspower_id,
                 group_name: facebookGroups.name,
                 order: tasks.order,
+                action_count: tasks.action_count,
             })
             .from(tasks)
             .leftJoin(socialProfiles, eq(tasks.profile_id, socialProfiles.id))
@@ -60,7 +61,8 @@ export default async function Tasks() {
                 profile_id: task.profile_id,
                 profile_name: task.profile_name,
                 adspower_id: task.adspower_id,
-                group_name: task.group_name
+                group_name: task.group_name,
+                action_count: task.action_count
             })
             return acc
         }, {} as Record<string, Profile>)

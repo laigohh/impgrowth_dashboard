@@ -44,21 +44,23 @@ export default function AdminTasks({ tasks, profileId }: AdminTasksProps) {
     }
 
     const getTaskDescription = (task: Task) => {
+        const count = task.action_count ? ` ${task.action_count}` : '';
+        
         switch (task.task_type) {
             case 'approve_post':
                 return 'Approve posts'
             case 'comment_group':
-                return 'Comment on posts'
+                return `Comment on${count} posts`
             case 'like_group_post':
-                return 'Like posts'
+                return `Like${count} posts`
             case 'like_comment':
-                return 'Like comments'
+                return `Like${count} comments`
             case 'schedule_post':
                 return 'Schedule posts'
             case 'answer_dm':
                 return 'Answer direct messages'
             case 'like_feed':
-                return 'Like posts and videos in feed'
+                return `Like${count} posts and videos in feed`
             default:
                 return task.task_type
         }
