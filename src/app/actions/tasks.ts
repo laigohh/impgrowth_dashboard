@@ -151,7 +151,8 @@ function shuffleArray<T>(array: T[]): T[] {
     return newArray
 }
 
-export async function completeTask(taskId: string) {
+// Add this new function to complete all tasks for a profile
+export async function completeAllProfileTasks(profileId: string) {
     try {
         await db
             .update(tasks)
@@ -159,12 +160,15 @@ export async function completeTask(taskId: string) {
                 status: 'completed',
                 completed_at: sql`CURRENT_TIMESTAMP`
             })
-            .where(eq(tasks.id, taskId))
+            .where(and(
+                eq(tasks.profile_id, profileId),
+                eq(tasks.status, 'pending')
+            ))
 
         revalidatePath('/secret/tasks')
         return { success: true }
     } catch (error) {
-        console.error('Error completing task:', error)
-        throw new Error(error instanceof Error ? error.message : 'Failed to complete task')
+        console.error('Error completing profile tasks:', error)
+        throw new Error(error instanceof Error ? error.message : 'Failed to complete profile tasks')
     }
 } 
