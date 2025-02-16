@@ -18,6 +18,8 @@ export type FacebookGroup = {
   id: number;
   name: string;
   url: string;
+  admin_count?: number;
+  engagement_count?: number;
 }
 
 export type ProfileGroup = {

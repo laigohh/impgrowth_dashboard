@@ -30,6 +30,7 @@ export default function AddProfileModal({ isOpen, onClose, onSubmit, userEmail, 
     const [fbGroups, setFbGroups] = useState<GroupAssignment[]>([])
     const [error, setError] = useState<string | null>(null)
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [showFacebookUrl, setShowFacebookUrl] = useState(false)
 
     if (!isOpen) return null
 
@@ -114,22 +115,36 @@ export default function AddProfileModal({ isOpen, onClose, onSubmit, userEmail, 
                         <div className="space-y-4">
                             <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300">Social Media Profiles</h3>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Facebook URL</label>
-                                <input
-                                    type="url"
-                                    value={formData.facebook_url || ''}
-                                    onChange={(e) => {
-                                        const url = e.target.value;
-                                        if (url && !url.includes('facebook.com')) {
-                                            setError('Please enter a valid Facebook URL');
-                                            return;
-                                        }
-                                        setError(null);
-                                        setFormData(prev => ({ ...prev, facebook_url: url }));
-                                    }}
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600"
-                                    placeholder="https://facebook.com/..."
-                                />
+                                <div className="flex items-center justify-between">
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                        Facebook
+                                    </label>
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowFacebookUrl(prev => !prev)}
+                                        className="text-blue-500 hover:text-blue-700 text-xl font-medium focus:outline-none"
+                                        title={showFacebookUrl ? "Hide URL input" : "Add Facebook URL"}
+                                    >
+                                        {showFacebookUrl ? '−' : '+'}
+                                    </button>
+                                </div>
+                                {showFacebookUrl && (
+                                    <input
+                                        type="url"
+                                        value={formData.facebook_url || ''}
+                                        onChange={(e) => {
+                                            const url = e.target.value;
+                                            if (url && !url.includes('facebook.com')) {
+                                                setError('Please enter a valid Facebook URL');
+                                                return;
+                                            }
+                                            setError(null);
+                                            setFormData(prev => ({ ...prev, facebook_url: url }));
+                                        }}
+                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600"
+                                        placeholder="https://facebook.com/..."
+                                    />
+                                )}
                             </div>
 
                             {/* Facebook Groups Selection */}
@@ -148,38 +163,78 @@ export default function AddProfileModal({ isOpen, onClose, onSubmit, userEmail, 
                                                 className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                                             >
                                                 <div className="flex-1">
-                                                    <p className="font-medium text-gray-800 dark:text-gray-200">{group.name}</p>
-                                                    <a 
-                                                        href={group.url} 
-                                                        target="_blank" 
-                                                        rel="noopener noreferrer" 
-                                                        className="text-sm text-blue-500 hover:underline"
-                                                    >
-                                                        {group.url}
-                                                    </a>
+                                                    <p className="font-medium text-gray-800 dark:text-gray-200">
+                                                        {group.name}
+                                                    </p>
+                                                    <div className="flex gap-4 mt-1 text-sm text-gray-500">
+                                                        <span>
+                                                            Admin: {group.admin_count || 0}
+                                                        </span>
+                                                        <span>
+                                                            Engagement: {group.engagement_count || 0}
+                                                        </span>
+                                                    </div>
                                                 </div>
-                                                <select
-                                                    value={fbGroups.find(g => g.group_id === group.id)?.role || ''}
-                                                    onChange={(e) => {
-                                                        const value = e.target.value as 'admin' | 'engagement' | ''
-                                                        if (!value) {
-                                                            setFbGroups(prev => prev.filter(g => g.group_id !== group.id))
-                                                        } else {
-                                                            setFbGroups(prev => {
-                                                                const existing = prev.find(g => g.group_id === group.id)
-                                                                if (existing) {
-                                                                    return prev.map(g => g.group_id === group.id ? { ...g, role: value } : g)
-                                                                }
-                                                                return [...prev, { group_id: group.id, role: value }]
-                                                            })
-                                                        }
-                                                    }}
-                                                    className="ml-4 p-2 border rounded bg-white dark:bg-gray-700"
-                                                >
-                                                    <option value="">Select Role</option>
-                                                    <option value="admin">Admin</option>
-                                                    <option value="engagement">Engagement</option>
-                                                </select>
+                                                <div className="flex items-center gap-4">
+                                                    <label className="inline-flex items-center">
+                                                        <input
+                                                            type="radio"
+                                                            name={`role-${group.id}`}
+                                                            value="admin"
+                                                            checked={fbGroups.find(g => g.group_id === group.id)?.role === 'admin'}
+                                                            onChange={() => {
+                                                                setFbGroups(prev => {
+                                                                    const existing = prev.find(g => g.group_id === group.id)
+                                                                    if (existing) {
+                                                                        return prev.map(g => 
+                                                                            g.group_id === group.id 
+                                                                                ? { ...g, role: 'admin' } 
+                                                                                : g
+                                                                            )
+                                                                    }
+                                                                    return [...prev, { group_id: group.id, role: 'admin' }]
+                                                                })
+                                                            }}
+                                                            className="form-radio h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                                                        />
+                                                        <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Admin</span>
+                                                    </label>
+                                                    <label className="inline-flex items-center">
+                                                        <input
+                                                            type="radio"
+                                                            name={`role-${group.id}`}
+                                                            value="engagement"
+                                                            checked={fbGroups.find(g => g.group_id === group.id)?.role === 'engagement'}
+                                                            onChange={() => {
+                                                                setFbGroups(prev => {
+                                                                    const existing = prev.find(g => g.group_id === group.id)
+                                                                    if (existing) {
+                                                                        return prev.map(g => 
+                                                                            g.group_id === group.id 
+                                                                                ? { ...g, role: 'engagement' } 
+                                                                                : g
+                                                                            )
+                                                                    }
+                                                                    return [...prev, { group_id: group.id, role: 'engagement' }]
+                                                                })
+                                                            }}
+                                                            className="form-radio h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                                                        />
+                                                        <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Engagement</span>
+                                                    </label>
+                                                    {fbGroups.find(g => g.group_id === group.id) && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => {
+                                                                setFbGroups(prev => prev.filter(g => g.group_id !== group.id))
+                                                            }}
+                                                            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                                                            title="Remove selection"
+                                                        >
+                                                            ×
+                                                        </button>
+                                                    )}
+                                                </div>
                                             </div>
                                         ))}
                                     </div>
