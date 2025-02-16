@@ -151,15 +151,11 @@ function shuffleArray<T>(array: T[]): T[] {
     return newArray
 }
 
-// Add this new function to complete all tasks for a profile
+// Update this function to delete tasks instead of marking them completed
 export async function completeAllProfileTasks(profileId: string) {
     try {
         await db
-            .update(tasks)
-            .set({
-                status: 'completed',
-                completed_at: sql`CURRENT_TIMESTAMP`
-            })
+            .delete(tasks)
             .where(and(
                 eq(tasks.profile_id, profileId),
                 eq(tasks.status, 'pending')
@@ -168,7 +164,7 @@ export async function completeAllProfileTasks(profileId: string) {
         revalidatePath('/secret/tasks')
         return { success: true }
     } catch (error) {
-        console.error('Error completing profile tasks:', error)
-        throw new Error(error instanceof Error ? error.message : 'Failed to complete profile tasks')
+        console.error('Error deleting profile tasks:', error)
+        throw new Error(error instanceof Error ? error.message : 'Failed to delete profile tasks')
     }
 } 
