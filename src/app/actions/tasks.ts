@@ -1,7 +1,7 @@
 'use server'
 
 import { db } from "@/db/client"
-import { tasks, profileGroups, socialProfiles } from "@/db/schema"
+import { tasks, profileGroups as profileGroupsTable, socialProfiles } from "@/db/schema"
 import { eq, and, sql } from "drizzle-orm"
 import { nanoid } from 'nanoid'
 import { revalidatePath } from "next/cache"
@@ -16,6 +16,11 @@ interface NewTask {
     action_count: number | null
 }
 
+interface AdminProfileGroup {
+    profile_id: string
+    group_id: number
+}
+
 function getRandomNumber(min: number, max: number): number {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
@@ -27,112 +32,112 @@ export async function generateDailyTasks() {
         await db.delete(tasks)
             .where(eq(tasks.status, 'pending'))
 
-        // Get all active profiles with admin role in any group
-        const adminProfiles = await db
+        // Get all active profiles with admin role in any group along with their groups in a single query
+        const adminProfilesWithGroups = await db
             .select({
-                id: socialProfiles.id,
+                profile_id: socialProfiles.id,
+                group_id: profileGroupsTable.group_id,
             })
             .from(socialProfiles)
             .innerJoin(
-                profileGroups,
-                eq(socialProfiles.id, profileGroups.profile_id)
+                profileGroupsTable,
+                eq(socialProfiles.id, profileGroupsTable.profile_id)
             )
             .where(
                 and(
                     eq(socialProfiles.active, true),
-                    eq(profileGroups.role, 'admin')
+                    eq(profileGroupsTable.role, 'admin')
                 )
             )
-            .groupBy(socialProfiles.id)
 
-        // For each admin profile
-        for (const profile of adminProfiles) {
-            const adminGroups = await db
-                .select({
-                    group_id: profileGroups.group_id
-                })
-                .from(profileGroups)
-                .where(
-                    and(
-                        eq(profileGroups.profile_id, profile.id),
-                        eq(profileGroups.role, 'admin')
-                    )
-                )
-
-            const profileTasks: NewTask[] = []
-            
-            // For each group, generate tasks with action counts
-            for (const { group_id } of adminGroups) {
-                // Generate group-specific tasks with counts
-                profileTasks.push({
-                    id: nanoid(),
-                    profile_id: profile.id,
-                    task_type: 'approve_post',
-                    target_group_id: group_id,
-                    order: Math.floor(Math.random() * 1000000),
-                    action_count: null // Approval doesn't need a count
-                })
-
-                profileTasks.push({
-                    id: nanoid(),
-                    profile_id: profile.id,
-                    task_type: 'comment_group',
-                    target_group_id: group_id,
-                    order: Math.floor(Math.random() * 1000000),
-                    action_count: getRandomNumber(2, 3)
-                })
-
-                profileTasks.push({
-                    id: nanoid(),
-                    profile_id: profile.id,
-                    task_type: 'like_group_post',
-                    target_group_id: group_id,
-                    order: Math.floor(Math.random() * 1000000),
-                    action_count: getRandomNumber(2, 4)
-                })
-
-                profileTasks.push({
-                    id: nanoid(),
-                    profile_id: profile.id,
-                    task_type: 'like_comment',
-                    target_group_id: group_id,
-                    order: Math.floor(Math.random() * 1000000),
-                    action_count: getRandomNumber(1, 3)
-                })
+        // Group profiles with their groups
+        const groupedProfiles = adminProfilesWithGroups.reduce<Record<string, number[]>>((acc, { profile_id, group_id }) => {
+            if (!acc[profile_id]) {
+                acc[profile_id] = []
             }
+            if (group_id) acc[profile_id].push(group_id)
+            return acc
+        }, {})
+
+        // Prepare all tasks in a single array
+        const allTasks: NewTask[] = []
+
+        // Generate tasks for each profile
+        Object.entries(groupedProfiles).forEach(([profile_id, groupIds]) => {
+            // Generate group-specific tasks
+            groupIds.forEach(group_id => {
+                // Add group-specific tasks
+                allTasks.push(
+                    {
+                        id: nanoid(),
+                        profile_id,
+                        task_type: 'approve_post',
+                        target_group_id: group_id,
+                        order: Math.floor(Math.random() * 1000000),
+                        action_count: null
+                    },
+                    {
+                        id: nanoid(),
+                        profile_id,
+                        task_type: 'comment_group',
+                        target_group_id: group_id,
+                        order: Math.floor(Math.random() * 1000000),
+                        action_count: getRandomNumber(2, 3)
+                    },
+                    {
+                        id: nanoid(),
+                        profile_id,
+                        task_type: 'like_group_post',
+                        target_group_id: group_id,
+                        order: Math.floor(Math.random() * 1000000),
+                        action_count: getRandomNumber(2, 4)
+                    },
+                    {
+                        id: nanoid(),
+                        profile_id,
+                        task_type: 'like_comment',
+                        target_group_id: group_id,
+                        order: Math.floor(Math.random() * 1000000),
+                        action_count: getRandomNumber(1, 3)
+                    }
+                )
+            })
 
             // Add non-group-specific tasks
-            profileTasks.push({
-                id: nanoid(),
-                profile_id: profile.id,
-                task_type: 'schedule_post',
-                order: Math.floor(Math.random() * 1000000),
-                action_count: null
-            })
-
-            profileTasks.push({
-                id: nanoid(),
-                profile_id: profile.id,
-                task_type: 'answer_dm',
-                order: Math.floor(Math.random() * 1000000),
-                action_count: null
-            })
-
-            profileTasks.push({
-                id: nanoid(),
-                profile_id: profile.id,
-                task_type: 'like_feed',
-                order: Math.floor(Math.random() * 1000000),
-                action_count: getRandomNumber(3, 5)
-            })
-
-            // Insert tasks
-            await db.transaction(async (tx) => {
-                for (const task of profileTasks) {
-                    await tx.insert(tasks).values(task)
+            allTasks.push(
+                {
+                    id: nanoid(),
+                    profile_id,
+                    task_type: 'schedule_post',
+                    order: Math.floor(Math.random() * 1000000),
+                    action_count: null
+                },
+                {
+                    id: nanoid(),
+                    profile_id,
+                    task_type: 'answer_dm',
+                    order: Math.floor(Math.random() * 1000000),
+                    action_count: null
+                },
+                {
+                    id: nanoid(),
+                    profile_id,
+                    task_type: 'like_feed',
+                    order: Math.floor(Math.random() * 1000000),
+                    action_count: getRandomNumber(3, 5)
                 }
-            })
-        }
+            )
+        })
+
+        // Insert all tasks in a single transaction
+        // Split into chunks to avoid SQLite parameter limits
+        const CHUNK_SIZE = 50
+        await db.transaction(async (tx) => {
+            for (let i = 0; i < allTasks.length; i += CHUNK_SIZE) {
+                const chunk = allTasks.slice(i, i + CHUNK_SIZE)
+                await tx.insert(tasks).values(chunk)
+            }
+        })
 
         revalidatePath('/secret/tasks')
         return { success: true }
