@@ -51,10 +51,19 @@ export type AdminTaskType =
   | 'answer_dm'
   | 'like_feed'
 
+export type EngagementTaskType =
+  | 'comment_posts'
+  | 'answer_comments'
+  | 'like_posts'
+  | 'invite_friends'
+  | 'add_friends'
+
+export type TaskType = AdminTaskType | EngagementTaskType
+
 export type Task = {
   id: string
   profile_id: string
-  task_type: AdminTaskType
+  task_type: AdminTaskType | EngagementTaskType
   status: TaskStatus
   target_group_id: number | null
   target_url: string | null
@@ -70,5 +79,6 @@ export type Profile = {
   profile_id: string
   profile_name: string | null
   adspower_id: string
+  role: 'admin' | 'engagement'
   tasks: Task[]
 } 

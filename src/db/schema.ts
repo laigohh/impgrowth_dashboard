@@ -54,7 +54,12 @@ export const tasks = sqliteTable('tasks', {
     .notNull()
     .references(() => socialProfiles.id),
   task_type: text('task_type', {
-    enum: ['approve_post', 'comment_group', 'like_group_post', 'like_comment', 'schedule_post', 'answer_dm', 'like_feed']
+    enum: [
+      'approve_post', 'comment_group', 'like_group_post', 'like_comment', 
+      'schedule_post', 'answer_dm', 'like_feed',
+      'comment_posts', 'answer_comments', 'like_posts', 'invite_friends',
+      'add_friends'
+    ]
   }).notNull(),
   status: text('status', {
     enum: ['pending', 'completed']

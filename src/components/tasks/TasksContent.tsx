@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import FacebookAdminTasks from './facebook/AdminTasks'
+import FacebookEngagementTasks from './facebook/EngagementTasks'
 import { generateDailyTasks, completeAllProfileTasks } from '@/app/actions/tasks'
 import type { Profile } from '@/types/database'
 
@@ -104,10 +105,17 @@ export default function TasksContent({ profiles }: TasksContentProps) {
 
                             {expandedProfiles[profile.profile_id] && (
                                 <div className="p-4 border-t border-gray-100">
-                                    <FacebookAdminTasks 
-                                        tasks={profile.tasks}
-                                        profileId={profile.profile_id}
-                                    />
+                                    {profile.role === 'admin' ? (
+                                        <FacebookAdminTasks 
+                                            tasks={profile.tasks}
+                                            profileId={profile.profile_id}
+                                        />
+                                    ) : (
+                                        <FacebookEngagementTasks 
+                                            tasks={profile.tasks}
+                                            profileId={profile.profile_id}
+                                        />
+                                    )}
                                 </div>
                             )}
                         </div>

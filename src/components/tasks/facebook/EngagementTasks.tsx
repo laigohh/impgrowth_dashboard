@@ -2,18 +2,18 @@
 
 import { useState } from 'react'
 import type { Task } from '@/types/database'
-import { isFacebookAdminTask } from './types'
+import { isFacebookEngagementTask } from './types'
 
-interface AdminTasksProps {
+interface EngagementTasksProps {
     tasks: Task[]
     profileId: string
 }
 
 type GroupedTasks = Record<string, Task[]>
 
-export default function AdminTasks({ tasks, profileId }: AdminTasksProps) {
+export default function EngagementTasks({ tasks, profileId }: EngagementTasksProps) {
     const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({})
-    const filteredTasks = tasks.filter(isFacebookAdminTask)
+    const filteredTasks = tasks.filter(isFacebookEngagementTask)
 
     // Group tasks by group name
     const groupedTasks = filteredTasks.reduce((acc: GroupedTasks, task) => {
@@ -29,20 +29,16 @@ export default function AdminTasks({ tasks, profileId }: AdminTasksProps) {
         const count = task.action_count ? ` ${task.action_count}` : '';
         
         switch (task.task_type) {
-            case 'approve_post':
-                return 'Approve posts'
-            case 'comment_group':
+            case 'comment_posts':
                 return `Comment on${count} posts`
-            case 'like_group_post':
+            case 'answer_comments':
+                return `Answer${count} comments`
+            case 'like_posts':
                 return `Like${count} posts`
-            case 'like_comment':
-                return `Like${count} comments`
-            case 'schedule_post':
-                return 'Schedule posts'
-            case 'answer_dm':
-                return 'Answer direct messages'
-            case 'like_feed':
-                return `Like${count} posts and videos in feed`
+            case 'invite_friends':
+                return `Invite${count} friends to group`
+            case 'add_friends':
+                return `Add${count} friends`
             default:
                 return task.task_type
         }
