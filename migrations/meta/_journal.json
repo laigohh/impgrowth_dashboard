@@ -36,6 +36,13 @@
       "when": 1739498361784,
       "tag": "0004_light_warpath",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1745809618001,
+      "tag": "0005_condemned_terror",
+      "breakpoints": true
     }
   ]
 }

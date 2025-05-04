@@ -81,4 +81,22 @@ export type Profile = {
   adspower_id: string
   role: 'admin' | 'engagement'
   tasks: Task[]
+}
+
+// Customer Types
+export type CustomerStatus =
+  | "Potential Customer / negotiating"
+  | "Paid few groups"
+  | "Paid full groups";
+
+export interface Customer {
+  id: string;
+  name: string;
+  facebookProfileUrl: string | null; // Matches schema facebook_profile_url
+  contactProfile: string | null;    // Matches schema contact_profile
+  groupsPurchased: string[];        // Matches schema groups_purchased (JSON array)
+  email: string | null;
+  status: CustomerStatus;
+  createdAt: Date;                  // Matches schema created_at (timestamp)
+  updatedAt: Date;                  // Matches schema updated_at (timestamp)
 } 

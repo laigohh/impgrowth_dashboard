@@ -35,6 +35,12 @@ export default function Sidebar() {
                     >
                         Tasks
                     </Link>
+                    <Link 
+                        href="/secret/customers" 
+                        className={`block p-2 rounded ${pathname === '/secret/customers' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-50'}`}
+                    >
+                        Customers
+                    </Link>
                 </nav>
             </div>
         </div>

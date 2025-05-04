@@ -4,6 +4,7 @@ import { db } from "@/db/client"
 import { facebookGroups } from "@/db/schema"
 import { revalidatePath } from "next/cache"
 import { sql } from "drizzle-orm"
+import { eq } from "drizzle-orm"
 
 export async function addFacebookGroup(name: string, url: string) {
     try {
@@ -17,6 +18,33 @@ export async function addFacebookGroup(name: string, url: string) {
     } catch (error) {
         console.error('Error in addFacebookGroup:', error)
         throw new Error(error instanceof Error ? error.message : 'Failed to add Facebook group')
+    }
+}
+
+export async function updateFacebookGroup(id: number, name: string, url: string) {
+    try {
+        await db.update(facebookGroups)
+            .set({ name, url })
+            .where(eq(facebookGroups.id, id));
+        
+        revalidatePath('/secret/facebook-groups')
+        return { success: true }
+    } catch (error) {
+        console.error('Error in updateFacebookGroup:', error)
+        throw new Error(error instanceof Error ? error.message : 'Failed to update Facebook group')
+    }
+}
+
+export async function deleteFacebookGroup(id: number) {
+    try {
+        await db.delete(facebookGroups)
+            .where(eq(facebookGroups.id, id));
+        
+        revalidatePath('/secret/facebook-groups')
+        return { success: true }
+    } catch (error) {
+        console.error('Error in deleteFacebookGroup:', error)
+        throw new Error(error instanceof Error ? error.message : 'Failed to delete Facebook group')
     }
 }
 

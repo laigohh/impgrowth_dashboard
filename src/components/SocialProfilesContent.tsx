@@ -7,12 +7,17 @@ import { addProfile, deleteProfile, updateProfile } from '@/app/actions/profiles
 import { createFBProfile } from '@/app/actions/fb-profiles'
 import type { SocialProfile, FacebookGroup } from '@/types/database'
 import EditProfileModal from './EditProfileModal'
-
+import { useRouter, useSearchParams } from 'next/navigation'
 
 interface SocialProfilesContentProps {
     profiles: SocialProfile[]
     groups: FacebookGroup[]
     userEmail: string
+    pagination?: {
+        currentPage: number
+        totalPages: number
+        totalCount: number
+    }
 }
 
 // First, let's create a helper component for the social link
@@ -34,12 +39,14 @@ const SocialLink = ({ url }: { url: string | undefined | null }) => {
 
 type SortDirection = 'asc' | 'desc' | null;
 
-export default function SocialProfilesContent({ profiles, groups, userEmail }: SocialProfilesContentProps) {
+export default function SocialProfilesContent({ profiles, groups, userEmail, pagination }: SocialProfilesContentProps) {
     const [isAddModalOpen, setIsAddModalOpen] = useState(false)
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
     const [selectedProfile, setSelectedProfile] = useState<SocialProfile | null>(null)
     const [error, setError] = useState<string | null>(null)
     const [sortDirection, setSortDirection] = useState<SortDirection>(null)
+    const router = useRouter()
+    const searchParams = useSearchParams()
 
     // Add sorting function
     const sortedProfiles = [...profiles].sort((a, b) => {
@@ -82,6 +89,12 @@ export default function SocialProfilesContent({ profiles, groups, userEmail }: S
             setError(err instanceof Error ? err.message : 'Failed to delete profile')
         }
     }
+
+    const handlePageChange = (page: number) => {
+        const params = new URLSearchParams(searchParams.toString());
+        params.set('page', page.toString());
+        router.push(`?${params.toString()}`);
+    };
 
     return (
         <div className="flex-1">
@@ -181,6 +194,54 @@ export default function SocialProfilesContent({ profiles, groups, userEmail }: S
                             </tbody>
                         </table>
                     </div>
+
+                    {/* Pagination */}
+                    {pagination && pagination.totalPages > 1 && (
+                        <div className="px-6 py-4 flex justify-between items-center border-t">
+                            <div className="text-sm text-gray-500">
+                                Showing {profiles.length} of {pagination.totalCount} profiles
+                            </div>
+                            <div className="flex space-x-2">
+                                <button 
+                                    onClick={() => handlePageChange(pagination.currentPage - 1)}
+                                    disabled={pagination.currentPage === 1}
+                                    className={`px-3 py-1 rounded ${
+                                        pagination.currentPage === 1 
+                                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                                            : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                                    }`}
+                                >
+                                    Previous
+                                </button>
+                                
+                                {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map(page => (
+                                    <button
+                                        key={page}
+                                        onClick={() => handlePageChange(page)}
+                                        className={`px-3 py-1 rounded ${
+                                            page === pagination.currentPage
+                                                ? 'bg-blue-500 text-white'
+                                                : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                                        }`}
+                                    >
+                                        {page}
+                                    </button>
+                                ))}
+                                
+                                <button 
+                                    onClick={() => handlePageChange(pagination.currentPage + 1)}
+                                    disabled={pagination.currentPage === pagination.totalPages}
+                                    className={`px-3 py-1 rounded ${
+                                        pagination.currentPage === pagination.totalPages
+                                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                            : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                                    }`}
+                                >
+                                    Next
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </main>
 
