@@ -15,21 +15,12 @@ export const socialProfiles = sqliteTable('social_profiles', {
   twitter_url: text('twitter_url'),
   thread_url: text('thread_url'),
   active: integer('active', { mode: 'boolean' }).notNull().default(true)
-}, (table) => {
-  return {
-    adspowerIdx: index('adspower_id_idx').on(table.adspower_id),
-    activeIdx: index('active_idx').on(table.active)
-  };
 });
 
 export const facebookGroups = sqliteTable('facebook_groups', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   name: text('name').notNull(),
   url: text('url').notNull().unique()
-}, (table) => {
-  return {
-    nameIdx: index('group_name_idx').on(table.name)
-  };
 });
 
 export const fbProfiles = sqliteTable('fb_profiles', {
@@ -53,10 +44,7 @@ export const profileGroups = sqliteTable('profile_groups', {
   }).notNull(),
 }, (table) => {
   return {
-    pk: primaryKey({ columns: [table.profile_id, table.group_id] }),
-    roleIdx: index('role_idx').on(table.role),
-    profileIdx: index('profile_id_idx').on(table.profile_id),
-    groupIdx: index('group_id_idx').on(table.group_id)
+    pk: primaryKey({ columns: [table.profile_id, table.group_id] })
   }
 });
 
